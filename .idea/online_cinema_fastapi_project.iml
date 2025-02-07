@@ -10,7 +10,7 @@
   <component name="PyNamespacePackagesService">
     <option name="namespacePackageFolders">
       <list>
-        <option value="$MODULE_DIR$/src/database" />
+        <option value="$MODULE_DIR$/src/database/models" />
       </list>
     </option>
   </component>
