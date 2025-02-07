@@ -10,7 +10,7 @@ from database import (
     ActorModel,
     LanguageModel
 )
-from schemas import (
+from src.schemas import (
     MovieListResponseSchema,
     MovieListItemSchema,
     MovieDetailSchema,
