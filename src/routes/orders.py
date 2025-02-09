@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from .models import OrderRequest, OrderResponse, AvailableMovies, ErrorResponse
-from .services import OrderService  # We'll create this service class
+from database.services import OrderService  # We'll create this service class
 
 router = APIRouter()
 order_service = OrderService() # Initialize the service
@@ -17,5 +17,3 @@ async def create_order(order_request: OrderRequest):
 async def get_available_movies():
     movies = order_service.get_available_movies() # Example
     return AvailableMovies(movies=movies)
-
-# ... other endpoints (e.g., get order details, cancel order)

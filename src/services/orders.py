@@ -1,4 +1,4 @@
-from .models import OrderRequest, OrderResponse, Ticket
+from src.database.models.orders import OrderRequest, OrderResponse, Ticket
 # ... (Import any database interaction libraries if needed)
 
 class OrderService:
@@ -16,5 +16,3 @@ class OrderService:
     def get_available_movies(self):
         # Fetch movies from database or a service
         return [{"id": 1, "title": "Movie A"}, {"id": 2, "title": "Movie B"}] # Example
-
-    # ... other service methods
