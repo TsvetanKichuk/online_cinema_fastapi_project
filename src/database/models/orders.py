@@ -1,14 +1,21 @@
 from pydantic import BaseModel
 from typing import List, Optional
 
-class Ticket(BaseModel):
-    movie_id: int
-    seat_number: str
-    showtime: str
+from src.database.models.accounts import UserModel
+
+
+class Ticket(Base):
+    __tablename__ = "tickets"
+    movie_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    seat_number: Mapped[int] = mapped_column(Integer)
+    showtime: Mapped[str] = mapped_column(String(255))
 
 class OrderRequest(BaseModel):
-    customer_id: int
-    tickets: List[Ticket]
+    __tablename__ = "orders"
+
+    customer_id: Mapped[UserModel] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    tickets: Mapped[List["Ticket"]] = relationship("Ticket")
+    total_price: Mapped[float] = mapped_column(Float)
     # Add other order details as needed (e.g., payment info)
 
 class OrderResponse(BaseModel):
