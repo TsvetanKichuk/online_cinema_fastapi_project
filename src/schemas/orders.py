@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field, PositiveFloat
 
 
 class OrderItem(BaseModel):
-    product_id: int
+    movie_id: int
     quantity: int = Field(gt=0, description="Количество товара")
     price: PositiveFloat = Field(description="Цена за единицу товара")
 
