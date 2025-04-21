@@ -1,19 +1,28 @@
-from schemas.movies import (
-    MovieDetailSchema,
-    MovieListResponseSchema,
-    MovieListItemSchema,
-    MovieCreateSchema,
-    MovieUpdateSchema
-)
-from schemas.accounts import (
+from .accounts import (
     UserRegistrationRequestSchema,
     UserRegistrationResponseSchema,
     UserActivationRequestSchema,
     MessageResponseSchema,
+    UserLoginRequestSchema,
+    UserLoginResponseSchema,
     PasswordResetRequestSchema,
     PasswordResetCompleteRequestSchema,
-    UserLoginResponseSchema,
-    UserLoginRequestSchema,
+    PasswordChangeRequestSchema,
     TokenRefreshRequestSchema,
     TokenRefreshResponseSchema
 )
+from .profiles import ProfileRequestSchema, ProfileResponseSchema
+from .movies import (
+    GenreSchema,
+    DirectorSchema,
+    StarSchema,
+    CertificationSchema,
+    CommentSchema,
+    MovieBaseSchema,
+    MovieDetailSchema,
+    MovieListItemSchema,
+    MovieListResponseSchema,
+    MovieCreateSchema,
+    MovieUpdateSchema
+)
+from .carts import CartResponse, CartItemResponse
