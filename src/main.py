@@ -1,18 +1,15 @@
+import uvicorn
 from fastapi import FastAPI
 
-from src.routes import (
-    movie_router,
-    accounts_router,
-    profiles_router
-)
+from src.routers import accounts_router, profiles_router, movies_router, carts_router
 
-app = FastAPI(
-    title="Movies homework",
-    description="Description of project"
-)
+app = FastAPI()
 
-api_version_prefix = "/api/v1"
+app.include_router(accounts_router, prefix="/accounts", tags=["accounts"])
+app.include_router(profiles_router, prefix="/profiles", tags=["profiles"])
+app.include_router(movies_router, prefix="/movies", tags=["movies"])
+app.include_router(carts_router, prefix="/carts", tags=["carts"])
 
-app.include_router(accounts_router, prefix=f"{api_version_prefix}/accounts", tags=["accounts"])
-app.include_router(profiles_router, prefix=f"{api_version_prefix}/profiles", tags=["profiles"])
-app.include_router(movie_router, prefix=f"{api_version_prefix}/theater", tags=["theater"])
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", reload=True)

@@ -1,49 +1,7 @@
-from datetime import date, datetime
+from datetime import datetime
 from typing import Optional, List
 
 from pydantic import BaseModel, Field, field_validator
-
-from src.database.models.movies import MovieStatusEnum
-from src.schemas.examples.movies import (
-    country_schema_example,
-    language_schema_example,
-    genre_schema_example,
-    actor_schema_example,
-    movie_item_schema_example,
-    movie_list_response_schema_example,
-    movie_create_schema_example,
-    movie_detail_schema_example,
-    movie_update_schema_example
-)
-
-
-class LanguageSchema(BaseModel):
-    id: int
-    name: str
-
-    model_config = {
-        "from_attributes": True,
-        "json_schema_extra": {
-            "examples": [
-                language_schema_example
-            ]
-        }
-    }
-
-
-class CountrySchema(BaseModel):
-    id: int
-    code: str
-    name: Optional[str]
-
-    model_config = {
-        "from_attributes": True,
-        "json_schema_extra": {
-            "examples": [
-                country_schema_example
-            ]
-        }
-    }
 
 
 class GenreSchema(BaseModel):
@@ -52,81 +10,92 @@ class GenreSchema(BaseModel):
 
     model_config = {
         "from_attributes": True,
-        "json_schema_extra": {
-            "examples": [
-                genre_schema_example
-            ]
-        }
     }
 
 
-class ActorSchema(BaseModel):
+class DirectorSchema(BaseModel):
     id: int
     name: str
 
     model_config = {
         "from_attributes": True,
-        "json_schema_extra": {
-            "examples": [
-                actor_schema_example
-            ]
-        }
     }
 
 
+class StarSchema(BaseModel):
+    id: int
+    name: str
+
+    model_config = {
+        "from_attributes": True,
+    }
+
+
+class CertificationSchema(BaseModel):
+    id: int
+    name: str
+
+    model_config = {"from_attributes": True}
+
+
+class CommentSchema(BaseModel):
+    id: int
+    user_id: int
+    comment: str
+    answers: list[int] | None = None
+
+    model_config = {"from_attributes": True}
+
+
 class MovieBaseSchema(BaseModel):
-    name: str = Field(..., max_length=255)
-    date: date
-    score: float = Field(..., ge=0, le=100)
-    overview: str
-    status: MovieStatusEnum
-    budget: float = Field(..., ge=0)
-    revenue: float = Field(..., ge=0)
+    uuid: str | None = None
+    name: str
+    year: int
+    time: int
+    imdb: float
+    meta_score: float | None = None
+    gross: float | None = None
+    description: str
+    price: float
 
     model_config = {
         "from_attributes": True
     }
 
-    @field_validator("date")
+    @field_validator("year")
     @classmethod
-    def validate_date(cls, value):
+    def validate_year(cls, value):
         current_year = datetime.now().year
-        if value.year > current_year + 1:
-            raise ValueError(f"The year in 'date' cannot be greater than {current_year + 1}.")
+        if value > current_year + 1:
+            raise ValueError(f"The year in 'year' cannot be greater than {current_year + 1}.")
         return value
 
 
 class MovieDetailSchema(MovieBaseSchema):
     id: int
-    country: CountrySchema
-    genres: List[GenreSchema]
-    actors: List[ActorSchema]
-    languages: List[LanguageSchema]
+    genres: list[GenreSchema]
+    stars: list[StarSchema]
+    directors: list[DirectorSchema]
+    certification: CertificationSchema
+    comments: list[CommentSchema]
 
     model_config = {
         "from_attributes": True,
-        "json_schema_extra": {
-            "examples": [
-                movie_detail_schema_example
-            ]
-        }
     }
 
 
 class MovieListItemSchema(BaseModel):
     id: int
     name: str
-    date: date
-    score: float
-    overview: str
+    year: int
+    time: int
+    imdb: float
+    genres: List[GenreSchema]
+    directors: List[DirectorSchema]
+    stars: List[StarSchema]
 
     model_config = {
         "from_attributes": True,
-        "json_schema_extra": {
-            "examples": [
-                movie_item_schema_example
-            ]
-        }
     }
 
 
@@ -139,61 +108,45 @@ class MovieListResponseSchema(BaseModel):
 
     model_config = {
         "from_attributes": True,
-        "json_schema_extra": {
-            "examples": [
-                movie_list_response_schema_example
-            ]
-        }
     }
 
 
 class MovieCreateSchema(BaseModel):
+    uuid: str | None = None
     name: str
-    date: date
-    score: float = Field(..., ge=0, le=100)
-    overview: str
-    status: MovieStatusEnum
-    budget: float = Field(..., ge=0)
-    revenue: float = Field(..., ge=0)
-    country: str
-    genres: List[str]
-    actors: List[str]
-    languages: List[str]
+    year: int
+    time: int
+    imdb: float = Field(..., ge=0, le=10)
+    meta_score: float | None = None
+    gross: float | None = None
+    description: str
+    price: float = Field(..., ge=0)
+    likes: int
+    dislikes: int
+    genres: list[str]
+    stars: list[str]
+    directors: list[str]
+    certification: str
+    comments: list[CommentSchema]
 
     model_config = {
         "from_attributes": True,
-        "json_schema_extra": {
-            "examples": [
-                movie_create_schema_example
-            ]
-        }
     }
 
-    @field_validator("country", mode="before")
+    @field_validator("genres", "stars", "directors", mode="before")
     @classmethod
-    def normalize_country(cls, value: str) -> str:
-        return value.upper()
-
-    @field_validator("genres", "actors", "languages", mode="before")
-    @classmethod
-    def normalize_list_fields(cls, value: List[str]) -> List[str]:
+    def normalize_list_fields(cls, value: list[str]) -> list[str]:
         return [item.title() for item in value]
 
 
 class MovieUpdateSchema(BaseModel):
-    name: Optional[str] = None
-    date: Optional[date] = None
-    score: Optional[float] = Field(None, ge=0, le=100)
-    overview: Optional[str] = None
-    status: Optional[MovieStatusEnum] = None
-    budget: Optional[float] = Field(None, ge=0)
-    revenue: Optional[float] = Field(None, ge=0)
+    name: str | None = None
+    year: int | None = None
+    time: int | None = None
+    imdb: float | None = Field(None, ge=0, le=10)
+    meta_score: float | None = None
+    gross: float | None = None
+    description: str | None = None
+    price: float | None = Field(None, ge=0)
 
-    model_config = {
-        "from_attributes": True,
-        "json_schema_extra": {
-            "examples": [
-                movie_update_schema_example
-            ]
-        }
-    }
+    model_config = {"from_attributes": True}
