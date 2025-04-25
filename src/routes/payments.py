@@ -1,32 +1,72 @@
-from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy.orm import Session
-from src.database.models.payments import Payment, PaymentStatus
-from src.database.validators import get_postgresql_db  # Функция для подключения к базе данных
+import os
+import json
+import stripe
+from fastapi import FastAPI, responses, Request, HTTPException
+from dotenv import load_dotenv
+from pathlib import Path
+
+from src.schemas.payments import PaymentResponseSchema, PaymentCreateSchema
+
+env_path = Path(".") / ".env"
+load_dotenv(dotenv_path=env_path)
 
 app = FastAPI()
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+BASE_URL="http://127.0.0.1:8000"
+STRIPE_PUBLISHABLE_KEY=os.getenv("STRIPE_PUBLISHABLE_KEY")
+STRIPE_SECRET_KEY=os.getenv("STRIPE_SECRET_KEY")
 
-@app.post("/payments/")
-def create_payment(
-    amount: float,
-    currency: str = "USD",
-    description: str = None,
-    db: Session = Depends(get_postgresql_db),
-):
-    new_payment = Payment(
-        amount=amount, 
-        currency=currency, 
-        description=description
+@app.get("/checkout/", response_model=PaymentResponseSchema)
+async def create_checkout_session(price: int = 10):
+    checkout_session = stripe.checkout.Session.create(
+        line_items=[
+            {
+                "price_data": {
+                    "currency": "usd",
+                    "product_data": {
+                        "name": "FastAPI Stripe Checkout",
+                    },
+                    "unit_amount": price * 100,
+                },
+                "quantity": 1,
+            }
+        ],
+        metadata={
+            "user_id": 3,
+            "email": "toys4babyodua@gmail.com",
+            "request_id": 1234567890
+        },
+        mode="payment",
+        success_url=os.getenv("BASE_URL") + "/success/",
+        cancel_url=os.getenv("BASE_URL") + "/cancel/",
+        customer_email="ping@fastapitutorial.com",
     )
-    db.add(new_payment)
-    db.commit()
-    db.refresh(new_payment)
-    return new_payment
+    return responses.RedirectResponse(checkout_session.url, status_code=303)
 
 
-@app.get("/payments/{payment_id}")
-def get_payment(payment_id: int, db: Session = Depends(get_postgresql_db)):
-    payment = db.query(Payment).filter(Payment.id == payment_id).first()
-    if not payment:
-        raise HTTPException(status_code=404)
-    return payment
+@app.post("/webhook/", response_model=PaymentCreateSchema)
+async def stripe_webhook(request: Request):
+    payload = await request.body()
+    event = None
 
+    try:
+        event = stripe.Event.construct_from(json.loads(payload), stripe.api_key)
+    except ValueError as e:
+        print("Invalid payload")
+        raise HTTPException(status_code=400, detail="Invalid payload")
+    except stripe.error.SignatureVerificationError as e:
+        print("Invalid signature")
+        raise HTTPException(status_code=400, detail="Invalid signature")
+
+    print("event received is", event)
+    if event["type"] == "checkout.session.completed":
+        payment = event["data"]["object"]
+        amount = payment["amount_total"]
+        currency = payment["currency"]
+        user_id = payment["metadata"]["user_id"]  # get custom user id from metadata
+        user_email = payment["customer_details"]["email"]
+        user_name = payment["customer_details"]["name"]
+        order_id = payment["id"]
+        # save to db
+        # send email in background task
+    return {}

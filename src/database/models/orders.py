@@ -1,7 +1,10 @@
-from pydantic import BaseModel
-from typing import List, Optional
+from typing import List
+
+from sqlalchemy import Integer, String, Float, UniqueConstraint, ForeignKey
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from src.database.models.accounts import UserModel
+from src.database.models.base import Base
 
 
 class Ticket(Base):
@@ -10,22 +13,24 @@ class Ticket(Base):
     seat_number: Mapped[int] = mapped_column(Integer)
     showtime: Mapped[str] = mapped_column(String(255))
 
-class OrderRequest(BaseModel):
+class OrderRequest(Base):
     __tablename__ = "orders"
 
     customer_id: Mapped[UserModel] = mapped_column(Integer, primary_key=True, autoincrement=True)
     tickets: Mapped[List["Ticket"]] = relationship("Ticket")
     total_price: Mapped[float] = mapped_column(Float)
-    # Add other order details as needed (e.g., payment info)
 
-class OrderResponse(BaseModel):
-    order_id: int # Unique ID for the order
-    total_price: float
-    tickets: List[Ticket]
-    # ... other relevant information
+    __table_args__ = (
+        UniqueConstraint("tickets_id", "customer_id", name="unique_ticket_constraint"),
+    )
 
-class AvailableMovies(BaseModel):
-    movies: List[dict] # Example: [{"id": 1, "title": "Movie A"}, {"id": 2, "title": "Movie B"}]
+class OrderResponse(Base):
+    order_id: Mapped[int] = mapped_column(Integer) # Unique ID for the order
+    total_price: Mapped[float] = mapped_column(Float)
+    tickets: Mapped[List[Ticket]] = mapped_column(ForeignKey("tickets.movie_id"))
 
-class ErrorResponse(BaseModel):
+class AvailableMovies(Base):
+    movies: List[dict]
+
+class ErrorResponse(Base):
     detail: str

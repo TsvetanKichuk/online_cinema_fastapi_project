@@ -1,18 +1,19 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, Field, PositiveFloat
+
+from pydantic import BaseModel, PositiveFloat, Field
 
 
 class PaymentCreateSchema(BaseModel):
-    order_id: int = Field(description="ID заказа, к которому относится платеж")
-    amount: PositiveFloat = Field(description="Сумма платежа")
-    payment_date: Optional[datetime] = Field(default_factory=datetime.utcnow, description="Дата платежа")
-    payment_method: str = Field(description="Метод оплаты (например, карта, наличные)")
+    order_id: int = Field(description="Payment ID")
+    amount: PositiveFloat = Field(description="Amount")
+    payment_date: Optional[datetime] = Field(default_factory=datetime.utcnow, description="Payment date")
+    payment_method: str = Field(description="Card or cash payments")
 
     def validate_payment(self):
-        """Проверяет, чтобы сумма платежа была положительной."""
+        """Check amount, must be positive."""
         if self.amount <= 0:
-            raise ValueError("Сумма платежа должна быть положительной")
+            raise ValueError("Amount must be positive")
 
 
 class PaymentResponseSchema(BaseModel):

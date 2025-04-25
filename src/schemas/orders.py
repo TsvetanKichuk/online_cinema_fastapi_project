@@ -5,18 +5,18 @@ from pydantic import BaseModel, Field, PositiveFloat
 
 class OrderItem(BaseModel):
     movie_id: int
-    quantity: int = Field(gt=0, description="Количество товара")
-    price: PositiveFloat = Field(description="Цена за единицу товара")
+    quantity: int = Field(gt=0, description="Count of goodness")
+    price: PositiveFloat = Field(description="Price of goodness")
 
 
 class OrderCreateSchema(BaseModel):
-    customer_id: int = Field(description="ID клиента")
-    items: List[OrderItem] = Field(description="Список товаров")
-    order_date: Optional[datetime] = Field(default_factory=datetime.utcnow, description="Дата заказа")
-    total_price: Optional[float] = Field(default=None, description="Общая стоимость заказа")
+    customer_id: int = Field(description="Client ID")
+    items: List[OrderItem] = Field(description="List of OrderItems")
+    order_date: Optional[datetime] = Field(default_factory=datetime.utcnow, description="Order date")
+    total_price: Optional[float] = Field(default=None, description="Total price")
 
     def calculate_total_price(self):
-        """Подсчитает общую стоимость заказа."""
+        """Calculate total price"""
         self.total_price = sum(item.quantity * item.price for item in self.items)
 
 
