@@ -113,20 +113,16 @@ $ http://localhost:8000/docs
 ### 👉 Getting access -- Authorization and Authentication
 
 #### Register example
-![Register Example]()
-![Register Example Success]()
+![Register Example Success](src/media/register_succes.png)
 #### Activate example
-![Activate Example]()
-![Activate Example Success]()
+![Activate Example Success](src/media/activate_success.png)
 #### Login example
-![Login Example]()
-![Login Example Success]()
+![Login Example Success](src/media/login_success.png)
 #### Refresh access token example
-![Refresh Access Token Example]()
-![Refresh Access Token Example Success]()
+![Refresh Access Token Example Success](src/media/refresh_token_success.png)
 
 ### 👉 Endpoints Example
-![Endpoints Example]()
+![Endpoints Example](src/media/endpoints_example.png)
 
 ### 👉 Features
 
