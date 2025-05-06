@@ -10,6 +10,7 @@ from src.database.models.movies import (
 from src.database import Base
 from src.main import app
 
+
 # Setting up the test database (SQLite in-memory)
 SQLALCHEMY_DATABASE_URL = "sqlite:///./src/tests/test.db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
